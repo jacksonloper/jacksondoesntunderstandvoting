@@ -1,0 +1,13 @@
+{
+  "name": "bettervoting-oracle",
+  "private": true,
+  "type": "commonjs",
+  "description": "Runs BetterVoting's real STAR-PR tabulator on test inputs and writes the results as a fixture for the client-side port's tests.",
+  "scripts": {
+    "generate": "tsx generate.ts"
+  },
+  "dependencies": {
+    "fraction.js": "4.3.7",
+    "tsx": "^4.20.0"
+  }
+}
