@@ -152,3 +152,11 @@
 .pair {
   font-size: 0.93rem;
 }
+.yee-overlay .voters circle {
+  fill: var(--ink);
+  opacity: 0.55;
+  pointer-events: none;
+}
+.swatch.dots {
+  background: radial-gradient(circle, var(--ink-2) 0 2px, transparent 2.5px) 0 0 / 6px 6px;
+}

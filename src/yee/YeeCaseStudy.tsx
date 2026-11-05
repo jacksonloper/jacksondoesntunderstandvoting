@@ -57,13 +57,16 @@ function YeeMap(props: {
   n: number
   cands: Pt[]
   probe: Pt
+  spread: number
   showDiff: boolean
   colors: Record<(typeof COLOR_VARS)[number], string>
   onMoveCand: (i: number, p: Pt) => void
   onDragState: (dragging: boolean) => void
   onProbe: (p: Pt) => void
 }) {
-  const { grid, other, n, cands, probe, showDiff, colors } = props
+  const { grid, other, n, cands, probe, spread, showDiff, colors } = props
+  // The probed electorate itself: the same 200 offsets every map point uses, centred on the crosshair.
+  const voters = useMemo(() => CLOUD.map((z) => ({ x: probe.x + spread * z.x, y: probe.y + spread * z.y })), [probe, spread])
   const wrapRef = useRef<HTMLDivElement>(null)
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const svgRef = useRef<SVGSVGElement>(null)
@@ -168,6 +171,11 @@ function YeeMap(props: {
             props.onDragState(false)
           }}
         >
+          <g className="voters" aria-hidden="true">
+            {voters.map((v, k) => (
+              <circle key={k} cx={v.x} cy={v.y} r={0.0065} />
+            ))}
+          </g>
           <g className="probe" transform={`translate(${probe.x} ${probe.y})`}>
             <circle r={0.03} />
             <line x1={-0.045} x2={0.045} />
@@ -380,8 +388,11 @@ export default function YeeCaseStudy() {
         the spot by the winner. Do that for every spot and you get a Yee diagram.
       </p>
       <p>
-        <strong>Drag the candidates</strong> to move them. <strong>Tap anywhere</strong> to see that electorate’s
-        ballots below. Hatched areas are where the two methods pick different winners.
+        <strong>Drag the candidates</strong> to move them. Every spot on the map is its own electorate, so the
+        colours only change when the candidates or the voter spread change. The dots show one of those electorates:
+        the 200 voters centred on the crosshair. Each of them ranks the candidates by distance.{' '}
+        <strong>Tap anywhere</strong> to move the crosshair and open that electorate up in step 3. Hatched areas are
+        where the two methods pick different winners.
       </p>
 
       <div className="yee-controls">
@@ -421,6 +432,7 @@ export default function YeeCaseStudy() {
             n={maps.n}
             cands={cands}
             probe={probe}
+            spread={spread}
             showDiff={showDiff}
             colors={colors}
             onMoveCand={moveCand}
@@ -436,6 +448,9 @@ export default function YeeCaseStudy() {
             {nm} wins
           </span>
         ))}
+        <span>
+          <span className="swatch dots" /> the crosshair’s 200 voters
+        </span>
         <span>
           <span className="swatch hatch" /> methods disagree ({Math.round(disagreeShare * 100)}% of the map)
         </span>
