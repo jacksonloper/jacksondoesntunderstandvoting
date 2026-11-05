@@ -1,0 +1,76 @@
+.app-shell {
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 2rem 1rem 3rem;
+  text-align: left;
+}
+
+h1 {
+  margin: 0 0 0.75rem;
+  font-size: 2rem;
+}
+
+.case-card {
+  margin-top: 1.5rem;
+  padding: 1rem;
+  border: 1px solid #d1d5db;
+  border-radius: 0.75rem;
+}
+
+.case-card ul {
+  margin: 0.75rem 0;
+  padding-left: 1.2rem;
+}
+
+.diagram-row {
+  margin-top: 2rem;
+  display: grid;
+  gap: 1.5rem;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+}
+
+.yee-grid {
+  margin-top: 0.75rem;
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 0.25rem;
+}
+
+.cell,
+.chip {
+  color: #111827;
+  font-weight: 700;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 0.4rem;
+}
+
+.cell {
+  min-height: 2rem;
+}
+
+.chip {
+  min-width: 1.75rem;
+  min-height: 1.75rem;
+}
+
+.winner-A {
+  background: #fecaca;
+}
+
+.winner-B {
+  background: #bfdbfe;
+}
+
+.winner-C {
+  background: #bbf7d0;
+}
+
+.legend {
+  margin-top: 1.5rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  align-items: center;
+}
