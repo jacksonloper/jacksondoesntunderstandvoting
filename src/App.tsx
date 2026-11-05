@@ -1,127 +1,103 @@
+import { useEffect, useState } from 'react'
 import './App.css'
+import Home from './pages/Home.tsx'
+import YeeCaseStudy from './yee/YeeCaseStudy.tsx'
+import StarPrCaseStudy from './starpr/StarPrCaseStudy.tsx'
 
-type Winner = 'A' | 'B' | 'C'
+// Hash routing (#/star-pr) so the built site works from any static host
+// (GitHub Pages, Netlify, a plain folder) with no server-side rewrites.
+function useHashRoute() {
+  const read = () => window.location.hash.replace(/^#\/?/, '') || ''
+  const [route, setRoute] = useState(read)
+  useEffect(() => {
+    const onChange = () => {
+      setRoute(read())
+      window.scrollTo(0, 0)
+    }
+    window.addEventListener('hashchange', onChange)
+    return () => window.removeEventListener('hashchange', onChange)
+  }, [])
+  return route
+}
 
-const roundRobinYee: Winner[] = [
-  'A',
-  'A',
-  'B',
-  'B',
-  'B',
-  'A',
-  'B',
-  'B',
-  'B',
-  'B',
-  'B',
-  'B',
-  'B',
-  'B',
-  'C',
-  'B',
-  'B',
-  'B',
-  'B',
-  'C',
-  'B',
-  'B',
-  'B',
-  'C',
-  'C',
-]
+type Theme = 'auto' | 'light' | 'dark'
 
-const irvYee: Winner[] = [
-  'A',
-  'A',
-  'A',
-  'C',
-  'C',
-  'A',
-  'A',
-  'C',
-  'C',
-  'C',
-  'A',
-  'C',
-  'C',
-  'C',
-  'C',
-  'C',
-  'C',
-  'C',
-  'C',
-  'C',
-  'C',
-  'C',
-  'C',
-  'C',
-  'C',
-]
+function useTheme(): [Theme, (t: Theme) => void] {
+  const [theme, setTheme] = useState<Theme>(() => {
+    try {
+      const t = localStorage.getItem('theme')
+      if (t === 'light' || t === 'dark') return t
+    } catch {
+      /* storage unavailable */
+    }
+    return 'auto'
+  })
+  useEffect(() => {
+    const el = document.documentElement
+    if (theme === 'auto') delete el.dataset.theme
+    else el.dataset.theme = theme
+    try {
+      if (theme === 'auto') localStorage.removeItem('theme')
+      else localStorage.setItem('theme', theme)
+    } catch {
+      /* storage unavailable */
+    }
+  }, [theme])
+  return [theme, setTheme]
+}
 
-const ballotProfile = [
-  { ranking: '31 voters: A > B > C' },
-  { ranking: '30 voters: B > C > A' },
-  { ranking: '39 voters: C > B > A' },
+export const caseStudies = [
+  {
+    route: 'yee',
+    number: 1,
+    title: 'When Round Robin and IRV disagree',
+    summary:
+      'A live Yee diagram: drag three candidates around a 2-D opinion space and watch where pairwise (Round Robin) and instant-runoff voting pick different winners, and why.',
+    component: YeeCaseStudy,
+  },
+  {
+    route: 'star-pr',
+    number: 2,
+    title: 'How BetterVoting counts STAR-PR',
+    summary:
+      'A step-by-step walk through the exact proportional STAR tabulator BetterVoting runs: quotas, split points, ballot reweighting, ties and a few surprises. Edit the ballots and the count reruns live.',
+    component: StarPrCaseStudy,
+  },
 ]
 
 function App() {
+  const route = useHashRoute()
+  const [theme, setTheme] = useTheme()
+  const study = caseStudies.find((c) => c.route === route)
+  const Page = study?.component
+
+  useEffect(() => {
+    document.title = study ? `${study.title} · Jackson doesn’t understand voting` : 'Jackson doesn’t understand voting'
+  }, [study])
+
+  const nextTheme: Record<Theme, Theme> = { auto: 'light', light: 'dark', dark: 'auto' }
+
   return (
-    <main className="app-shell">
-      <header>
-        <h1>Voting Case Studies</h1>
-        <p>
-          Case Study 1: a Yee-diagram-style comparison where Round Robin and IRV
-          produce different winners.
-        </p>
+    <>
+      <header className="site-header">
+        <a href="#/" className="site-title">
+          jackson<span>doesn’t</span>understand<span>voting</span>
+        </a>
+        <button
+          className="theme-toggle"
+          onClick={() => setTheme(nextTheme[theme])}
+          aria-label={`Color theme: ${theme}. Click to change.`}
+          title="Switch color theme"
+        >
+          {theme === 'auto' ? '◐ auto' : theme === 'light' ? '☀ light' : '☾ dark'}
+        </button>
       </header>
-
-      <section className="case-card">
-        <h2>Profile used in this case</h2>
-        <ul>
-          {ballotProfile.map((item) => (
-            <li key={item.ranking}>{item.ranking}</li>
-          ))}
-        </ul>
-        <p>
-          Round Robin (pairwise) elects <strong>B</strong> because B beats both
-          A and C head-to-head. IRV eliminates B first and elects{' '}
-          <strong>C</strong>.
-        </p>
-      </section>
-
-      <section className="diagram-row" aria-label="Yee diagram comparison">
-        <article>
-          <h2>Round Robin Yee diagram</h2>
-          <div className="yee-grid">
-            {roundRobinYee.map((winner, index) => (
-              <span key={`rr-${index}`} className={`cell winner-${winner}`}>
-                {winner}
-              </span>
-            ))}
-          </div>
-        </article>
-        <article>
-          <h2>IRV Yee diagram</h2>
-          <div className="yee-grid">
-            {irvYee.map((winner, index) => (
-              <span key={`irv-${index}`} className={`cell winner-${winner}`}>
-                {winner}
-              </span>
-            ))}
-          </div>
-        </article>
-      </section>
-
-      <footer className="legend" aria-label="Candidate legend">
-        <span className="chip winner-A">A</span>
-        <span className="chip winner-B">B</span>
-        <span className="chip winner-C">C</span>
-        <div>
-          A, B, and C are candidate locations in ideological space. Colored
-          cells indicate the winner for sampled voter positions.
-        </div>
+      <main className="page">{Page ? <Page /> : <Home studies={caseStudies} />}</main>
+      <footer className="site-footer">
+        Case studies written to help me understand voting methods. Source on{' '}
+        <a href="https://github.com/jacksonloper/jacksondoesntunderstandvoting">GitHub</a>.
       </footer>
-    </main>
+    </>
   )
 }
 
