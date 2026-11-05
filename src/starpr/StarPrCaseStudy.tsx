@@ -488,8 +488,8 @@ export default function StarPrCaseStudy() {
           </Code>{' '}
           looks for the highest total across <em>all</em> candidates, including ones already elected, whose totals were
           set to 0. Suppose every unelected candidate also has a weighted total of 0, because the only voters who scored
-          them have used up their weight. The most natural case is an uncontested race with as many seats as
-          candidates. Then everyone
+          them have used up their weight. That happens naturally when the few voters who reach down the ballot are
+          also a front-runner’s biggest fans, as in the example below. Then everyone
           ties at 0, the tie-break picks the earliest candidate in tie-break order, and that may be someone who
           already holds a seat. Nothing checks for this, so <code>results.elected</code> contains the same candidate
           twice. Running BetterVoting’s real tabulator confirms it: an election with no ballots at all elects{' '}

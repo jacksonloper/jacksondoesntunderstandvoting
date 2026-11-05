@@ -88,15 +88,20 @@ test('quirk: a candidate can be elected twice once every remaining candidate sco
   assert.equal(r.rounds[1].reElected, true)
 })
 
-test('quirk, uncontested race: Alice wins both seats if she is first in tie-break order, else Alice then Bob', () => {
+test('quirk, board election: an incumbent can take two of three seats', () => {
   const s = byId('elected-twice')
   const r = run('elected-twice')
-  assert.equal(r.quota.toString(), '5/2')
-  assert.deepEqual(r.rounds[0].weightsAfter.map(String), ['0', '0', '3/4', '3/4', '1'])
-  assert.deepEqual(r.rounds[1].weightedSums.map(String), ['0', '0'])
-  assert.deepEqual(names(r, r.elected), ['Alice', 'Alice'])
-  const flipped = runWithOrder(s.candidates, s.ballots, s.nWinners, [1, 0])
-  assert.deepEqual(flipped.elected.map((i) => s.candidates[i]), ['Alice', 'Bob'])
+  assert.equal(r.quota.toString(), '3')
+  assert.deepEqual(r.rounds[0].weightedSums.map(stars), [37, 34, 4, 3])
+  assert.deepEqual(r.rounds[0].weightsAfter.map(String), ['0', '0', '1', '1', '1', '1', '1', '1', '0'])
+  assert.deepEqual(r.rounds[1].weightedSums.map(stars), [0, 23, 0, 0])
+  assert.deepEqual(r.rounds[1].weightsAfter.map(String), ['0', '0', '1/3', '1', '1/3', '1/3', '1', '0', '0'])
+  assert.deepEqual(r.rounds[2].weightedSums.map(String), ['0', '0', '0', '0'])
+  assert.deepEqual(names(r, r.elected), ['Ana', 'Ben', 'Ana'])
+  const benFirst = runWithOrder(s.candidates, s.ballots, s.nWinners, [1, 0, 2, 3])
+  assert.deepEqual(benFirst.elected.map((i) => s.candidates[i]), ['Ana', 'Ben', 'Ben'])
+  const calFirst = runWithOrder(s.candidates, s.ballots, s.nWinners, [2, 0, 1, 3])
+  assert.deepEqual(calFirst.elected.map((i) => s.candidates[i]), ['Ana', 'Ben', 'Cal'])
 })
 
 // ---------- the port vs. BetterVoting's real tabulator ----------
